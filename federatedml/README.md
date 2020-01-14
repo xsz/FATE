@@ -18,7 +18,7 @@ Figure 1： Federated Machine Learning Framework
 ### Algorithm List
 
 #### 1. [DataIO](./util/README.md)
-This component is typically the first component of a modeling task. It will transform user-uploaded date into Instance object which can be used for the following components.
+This component is typically the first component of a modeling task. It will transform user-uploaded data into Instance object which can be used for the following components.
 
 - Corresponding module name: DataIO
 
@@ -74,7 +74,7 @@ Transfer a column into one-hot format.
 
 
 #### 7. [Hetero Feature Selection](./feature/README.md)
-Provide 5 types of filters. Each filters can select columns according to user config.
+Provide multiple filters. Each filter can select columns according to user config.
 
 - Corresponding module name: HeteroFeatureSelection
 - Data Input: Input DTable.

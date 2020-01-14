@@ -53,21 +53,6 @@ class HeteroBaseArbiter(BaseLinearModel):
         """
         pass
 
-    # def run(self, component_parameters=None, args=None):
-    #     self._init_runtime_parameters(component_parameters)
-    #
-    #     if self.need_cv:
-    #         LOGGER.info("Task is cross validation.")
-    #         self.cross_validation(None)
-    #         return
-    #
-    #     elif not "model" in args:
-    #         LOGGER.info("Task is fit")
-    #         self.set_flowid('fit')
-    #         self.fit()
-    #     else:
-    #         LOGGER.info("Task is predict, No need for arbiter to involve.")
-
     def fit(self, data_instances=None, validate_data=None):
         """
         Train linear model of role arbiter
@@ -116,6 +101,7 @@ class HeteroBaseArbiter(BaseLinearModel):
                 iter_loss /= self.batch_generator.batch_num
                 if not self.in_one_vs_rest:
                     self.callback_loss(self.n_iter_, iter_loss)
+                self.loss_history.append(iter_loss)
 
             if self.model_param.early_stop == 'weight_diff':
                 LOGGER.debug("total_gradient: {}".format(total_gradient))

@@ -20,6 +20,7 @@ import functools
 
 from arch.api.utils import log_utils
 from federatedml.linear_model.logistic_regression.base_logistic_regression import BaseLogisticRegression
+from federatedml.linear_model.linear_model_weight import LinearModelWeights as LogisticRegressionWeights
 from federatedml.optim import activation
 from federatedml.linear_model.linear_model_weight import LinearModelWeights
 from federatedml.optim.optimizer import optimizer_factory
@@ -114,3 +115,16 @@ class HomoLRBase(BaseLogisticRegression):
                                                           re_encrypt_batches=self.re_encrypt_batches,
                                                           need_one_vs_rest=self.need_one_vs_rest)
         return meta_protobuf_obj
+
+    def __aggregate(self, data_instances, model_weights, degree, use_encrypt=False):
+        weight = self.aggregator.aggregate_then_get(model_weights, degree=degree,
+                                                    suffix=self.n_iter_)
+
+        self.model_weights = LogisticRegressionWeights(weight.unboxed, self.fit_intercept)
+        if not use_encrypt:
+            loss = self._compute_loss(data_instances)
+            self.aggregator.send_loss(loss, degree=degree, suffix=(self.n_iter_,))
+            LOGGER.info("n_iters: {}, loss: {}".format(self.n_iter_, loss))
+
+        self.is_converged = self.aggregator.get_converge_status(suffix=(self.n_iter_,))
+        LOGGER.info("n_iters: {}, converge flag is :{}".format(self.n_iter_, self.is_converged))

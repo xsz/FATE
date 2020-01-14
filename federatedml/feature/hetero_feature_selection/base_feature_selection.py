@@ -110,8 +110,8 @@ class BaseHeteroFeatureSelection(ModelBase):
             header=self.curt_select_properties.header
         )
 
-        json_result = json_format.MessageToJson(result_obj)
-        LOGGER.debug("json_result: {}".format(json_result))
+        # json_result = json_format.MessageToJson(result_obj)
+        # LOGGER.debug("json_result: {}".format(json_result))
         return result_obj
 
     def save_data(self):

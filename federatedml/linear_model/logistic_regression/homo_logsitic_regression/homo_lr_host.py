@@ -86,25 +86,24 @@ class HomoLRHost(HomoLRBase):
 
         model_weights = self.model_weights
         degree = 0
-        while self.n_iter_ < self.max_iter:
+        while self.n_iter_ < self.max_iter + 1:
             batch_data_generator = mini_batch_obj.mini_batch_data_generator()
 
-            if self.n_iter_ > 0 and self.n_iter_ % self.aggregate_iters == 0:
-                weight = self.aggregator.aggregate_then_get(model_weights, degree=degree,
-                                                            suffix=self.n_iter_)
-                # LOGGER.debug("Before aggregate: {}, degree: {} after aggregated: {}".format(
-                #     model_weights.unboxed / degree,
-                #     degree,
-                #     weight.unboxed))
-                self.model_weights = LogisticRegressionWeights(weight.unboxed, self.fit_intercept)
-                if not self.use_encrypt:
-                    loss = self._compute_loss(data_instances)
-                    self.aggregator.send_loss(loss, degree=degree, suffix=(self.n_iter_,))
-                    LOGGER.info("n_iters: {}, loss: {}".format(self.n_iter_, loss))
+            if self.n_iter_ > 0 and self.n_iter_ % self.aggregate_iters == 0 or self.n_iter_ == self.max_iter:
+                # weight = self.aggregator.aggregate_then_get(model_weights, degree=degree,
+                #                                             suffix=self.n_iter_)
+                #
+                # self.model_weights = LogisticRegressionWeights(weight.unboxed, self.fit_intercept)
+                # if not self.use_encrypt:
+                #     loss = self._compute_loss(data_instances)
+                #     self.aggregator.send_loss(loss, degree=degree, suffix=(self.n_iter_,))
+                #     LOGGER.info("n_iters: {}, loss: {}".format(self.n_iter_, loss))
+                # degree = 0
+                # self.is_converged = self.aggregator.get_converge_status(suffix=(self.n_iter_,))
+                self.__aggregate(data_instances, model_weights, degree, use_encrypt=self.use_encrypt)
                 degree = 0
-                self.is_converged = self.aggregator.get_converge_status(suffix=(self.n_iter_,))
                 LOGGER.info("n_iters: {}, is_converge: {}".format(self.n_iter_, self.is_converged))
-                if self.is_converged:
+                if self.is_converged or self.n_iter_ == self.max_iter:
                     break
                 model_weights = self.model_weights
 
@@ -131,7 +130,6 @@ class HomoLRHost(HomoLRBase):
 
             validation_strategy.validate(self, self.n_iter_)
             self.n_iter_ += 1
-
         LOGGER.info("Finish Training task, total iters: {}".format(self.n_iter_))
 
     def predict(self, data_instances):

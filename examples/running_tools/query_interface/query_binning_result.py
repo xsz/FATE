@@ -74,6 +74,8 @@ class QueryBinningResult(base_task.BaseTask):
         cmd = ['python', run_config.FATE_FLOW_PATH, "-f", "component_output_model", "-j", job_id,
                '-cpn', cpn, '-r', role, '-p', str(party_id)]
         result_json = self.start_task(cmd)
+        # self.write_json_file(result_json, run_config.TEMP_DATA_PATH + 'tmp_result.json')
+
         return result_json
 
     def parse_result(self, result_json):

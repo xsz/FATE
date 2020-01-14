@@ -20,7 +20,6 @@ import functools
 
 from arch.api.utils import log_utils
 from federatedml.framework.homo.procedure import aggregator
-from federatedml.linear_model.linear_model_weight import LinearModelWeights as LogisticRegressionWeights
 from federatedml.linear_model.logistic_regression.homo_logsitic_regression.homo_lr_base import HomoLRBase
 from federatedml.model_selection import MiniBatch
 from federatedml.optim.gradient.homo_lr_gradient import LogisticGradient
@@ -55,26 +54,27 @@ class HomoLRGuest(HomoLRBase):
         model_weights = self.model_weights
 
         degree = 0
-        while self.n_iter_ < max_iter:
+        while self.n_iter_ < max_iter + 1:
             batch_data_generator = mini_batch_obj.mini_batch_data_generator()
 
             self.optimizer.set_iters(self.n_iter_)
-            if self.n_iter_ > 0 and self.n_iter_ % self.aggregate_iters == 0:
-                weight = self.aggregator.aggregate_then_get(model_weights, degree=degree,
-                                                            suffix=self.n_iter_)
-                LOGGER.debug("Before aggregate: {}, degree: {} after aggregated: {}".format(
-                    model_weights.unboxed / degree,
-                    degree,
-                    weight.unboxed))
-
-                self.model_weights = LogisticRegressionWeights(weight.unboxed, self.fit_intercept)
-                loss = self._compute_loss(data_instances)
-                self.aggregator.send_loss(loss, degree=degree, suffix=(self.n_iter_,))
+            if self.n_iter_ > 0 and self.n_iter_ % self.aggregate_iters == 0 or self.n_iter_ == max_iter:
+                # weight = self.aggregator.aggregate_then_get(model_weights, degree=degree,
+                #                                             suffix=self.n_iter_)
+                # LOGGER.debug("Before aggregate: {}, degree: {} after aggregated: {}".format(
+                #     model_weights.unboxed / degree,
+                #     degree,
+                #     weight.unboxed))
+                #
+                # self.model_weights = LogisticRegressionWeights(weight.unboxed, self.fit_intercept)
+                # loss = self._compute_loss(data_instances)
+                # self.aggregator.send_loss(loss, degree=degree, suffix=(self.n_iter_,))
+                # degree = 0
+                #
+                # self.is_converged = self.aggregator.get_converge_status(suffix=(self.n_iter_,))
+                self.__aggregate(data_instances, model_weights, degree)
                 degree = 0
-
-                self.is_converged = self.aggregator.get_converge_status(suffix=(self.n_iter_,))
-                LOGGER.info("n_iters: {}, loss: {} converge flag is :{}".format(self.n_iter_, loss, self.is_converged))
-                if self.is_converged:
+                if self.is_converged or self.n_iter_ == max_iter:
                     break
                 model_weights = self.model_weights
 
@@ -108,3 +108,8 @@ class HomoLRGuest(HomoLRBase):
         predict_result = pred_table.join(predict_result, lambda x, y: [y, x[1], x[0],
                                                                        {"1": x[0], "0": 1 - x[0]}])
         return predict_result
+
+
+
+
+
