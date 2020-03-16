@@ -300,6 +300,30 @@ sh services.sh all status
 ```
 sh services.sh proxy status
 ```
+查看服务是否已经监听端口
+
+redis：netstat -antp | grep -i "listen" | grep 6379
+
+mysql：netstat -antp | grep -i "listen" | grep 3306
+
+storage-service-cxx：netstat -antp | grep -i "listen" | grep 7778
+
+egg：netstat -antp | grep -i "listen" | grep 7888
+
+roll：netstat -antp | grep -i "listen" | grep 8011
+
+meta-service：netstat -antp | grep -i "listen" | grep 8590
+
+federation：netstat -antp | grep -i "listen" | grep 9394
+
+fateboard：netstat -antp | grep -i "listen" | grep 8080
+
+proxy：netstat -antp | grep -i "listen" | grep 9370
+
+fate_flow：netstat -antp | grep -i "listen" | grep 9380
+
+fate_flow:  netstat -antp | grep -i "listen" | grep 9360
+
 
 6.3 关机服务
 ------------
